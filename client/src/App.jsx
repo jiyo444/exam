@@ -3,6 +3,7 @@ import {
   BookOpen,
   ChefHat,
   Clock3,
+  ChevronRight,
   Edit3,
   Plus,
   Search,
@@ -22,6 +23,32 @@ const categoryPhotos = {
 const heroPhoto = 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=1400&q=90';
 const apiBaseUrl = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
 const useBrowserStorage = window.location.hostname.endsWith('github.io');
+const heroSlides = [
+  {
+    eyebrow: 'A LITTLE HEAT, A LOT OF HEART',
+    title: 'Bring the',
+    highlight: 'good stuff home.',
+    description: 'Keep the dishes you love close, ready for your next kitchen adventure.',
+    photo: heroPhoto,
+    imageLabel: 'A flame-grilled burger with fresh toppings',
+  },
+  {
+    eyebrow: 'MADE FOR SLOW MORNINGS',
+    title: 'Make room for',
+    highlight: 'one more bite.',
+    description: 'From first coffee to last crumbs, save the recipes worth repeating.',
+    photo: categoryPhotos.Breakfast,
+    imageLabel: 'A breakfast spread with toast and eggs',
+  },
+  {
+    eyebrow: 'THE TABLE IS YOURS',
+    title: 'Pass around',
+    highlight: 'something lovely.',
+    description: 'Collect weeknight favorites, family classics, and happy accidents.',
+    photo: categoryPhotos.Dinner,
+    imageLabel: 'A colorful bowl of fresh vegetables and grains',
+  },
+];
 
 function toForm(recipe) {
   return {
@@ -240,6 +267,7 @@ export default function App() {
   const [toast, setToast] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
+  const [activeSlide, setActiveSlide] = useState(0);
 
   async function loadRecipes() {
     try {
@@ -254,6 +282,13 @@ export default function App() {
   }
 
   useEffect(() => { loadRecipes(); }, []);
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+    const interval = window.setInterval(() => {
+      setActiveSlide((current) => (current + 1) % heroSlides.length);
+    }, 5600);
+    return () => window.clearInterval(interval);
+  }, []);
   useEffect(() => {
     if (!toast) return undefined;
     const timeout = window.setTimeout(() => setToast(null), 4200);
@@ -303,15 +338,24 @@ export default function App() {
       </header>
 
       <main id="top">
-        <section className="intro">
-          <div className="intro-copy">
-            <p className="eyebrow">A TABLE FOR EVERY MOOD</p>
-            <h1>Good food,<br /><em>good mood.</em></h1>
-            <p className="intro-description">The meals you love, saved for the moments you want to make them again.</p>
+        <section aria-label="Featured recipe inspiration" className="intro">
+          <div aria-label={heroSlides[activeSlide].imageLabel} className="intro-visual" key={activeSlide} role="img" style={{ backgroundImage: `url(${heroSlides[activeSlide].photo})` }} />
+          <div className="intro-copy" key={`copy-${activeSlide}`}>
+            <p className="eyebrow">{heroSlides[activeSlide].eyebrow}</p>
+            <h1>{heroSlides[activeSlide].title}<br /><em>{heroSlides[activeSlide].highlight}</em></h1>
+            <p className="intro-description">{heroSlides[activeSlide].description}</p>
+            <div className="intro-actions">
+              <button className="button intro-cta" onClick={() => setModal({ type: 'new' })} type="button"><Plus size={16} /> Add a recipe</button>
+              <div aria-label="Featured recipe slides" className="slide-controls">
+                {heroSlides.map((slide, index) => (
+                  <button aria-label={`Show slide ${index + 1}: ${slide.eyebrow}`} aria-pressed={activeSlide === index} className={activeSlide === index ? 'slide-dot active' : 'slide-dot'} key={slide.eyebrow} onClick={() => setActiveSlide(index)} type="button" />
+                ))}
+              </div>
+              <span className="slide-count">0{activeSlide + 1} <span>/ 0{heroSlides.length}</span></span>
+            </div>
           </div>
-          <div aria-label="A freshly made burger" className="intro-visual" role="img" style={{ backgroundImage: `url(${heroPhoto})` }}>
-            <span className="intro-visual-label"><ChefHat size={15} /> MADE IN YOUR KITCHEN</span>
-          </div>
+          <div aria-hidden="true" className="hero-image-caption"><ChefHat size={14} /> FROM THE RECIPE BOOK</div>
+          <button aria-label="Next featured recipe" className="hero-next-mark" onClick={() => setActiveSlide((activeSlide + 1) % heroSlides.length)} type="button"><ChevronRight size={22} /></button>
         </section>
 
         <section className="collection" aria-label="Recipe collection">
