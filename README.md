@@ -15,14 +15,19 @@ A responsive MERN recipe manager. Recipes are persisted in MongoDB through the E
 
 The API runs on port 5000 and Vite forwards `/api` requests to it. `npm run build` creates the client production bundle, and `npm start` serves that bundle from the Express server.
 
-## Deploy on Render
+## Deploy the frontend on GitHub Pages
 
-1. Push this repository to GitHub.
-2. In Render, choose **New +** → **Blueprint**, then connect this repository. Render reads `render.yaml` and builds the React app and Express API as one web service.
-3. When prompted, set `MONGODB_URI` to your MongoDB Atlas connection string in Render's environment settings. Do not commit `.env` or paste database credentials into source files.
-4. In Atlas, allow network access from the deployed service, then wait for the Render deploy to finish. Open the service URL shown by Render.
+GitHub Pages hosts the React frontend; it does not run the Express API. Deploy the API first using the Render instructions below.
 
-The app and `/api` endpoints share the same hosted origin, so no separate frontend API URL is needed.
+1. In GitHub, open **Settings** → **Pages** and select **GitHub Actions** as the deployment source.
+2. Open **Settings** → **Secrets and variables** → **Actions** → **Variables**, then create `VITE_API_URL` with the public URL of your Render API (for example, `https://recipe-book.onrender.com`). Do not include a trailing slash.
+3. Push to `main` or run the **Deploy to GitHub Pages** workflow. The site will be published at `https://jiyo444.github.io/exam/`.
+
+## Deploy the API on Render
+
+1. In Render, choose **New +** → **Blueprint**, then connect this repository. Render reads `render.yaml` and builds the React app and Express API as one web service.
+2. When prompted, set `MONGODB_URI` to your MongoDB Atlas connection string in Render's environment settings. Do not commit `.env` or paste database credentials into source files.
+3. In Atlas, allow network access from the deployed service, then wait for the Render deploy to finish. Use the Render service URL as the `VITE_API_URL` GitHub Actions variable above.
 
 ## API
 
