@@ -19,7 +19,7 @@ const categoryPhotos = {
   Snack: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=900&q=85',
   Dessert: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=900&q=85',
 };
-const heroPhoto = 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=1400&q=90';
+const heroPhoto = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1400&q=90';
 const apiBaseUrl = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
 
 function toForm(recipe) {
@@ -250,18 +250,19 @@ export default function App() {
       </header>
 
       <main id="top">
-        <section className="intro">
+        <section aria-labelledby="intro-title" className="intro">
           <div className="intro-copy">
-            <p className="eyebrow">A TABLE FOR EVERY MOOD</p>
-            <h1>Good food,<br /><em>good mood.</em></h1>
-            <p className="intro-description">The meals you love, saved for the moments you want to make them again.</p>
+            <p className="eyebrow">THE HOME-COOK'S NOTEBOOK</p>
+            <h1 id="intro-title">Recipes to<br /><em>come back to.</em></h1>
+            <p className="intro-description">A personal shelf for the dishes worth remembering, from weeknight staples to special-occasion favorites.</p>
+            <a className="button button-primary intro-browse" href="#collection"><BookOpen size={16} /> Browse recipes</a>
           </div>
-          <div aria-label="A freshly made burger" className="intro-visual" role="img" style={{ backgroundImage: `url(${heroPhoto})` }}>
-            <span className="intro-visual-label"><ChefHat size={15} /> MADE IN YOUR KITCHEN</span>
+          <div aria-label="A colorful bowl of fresh vegetables and grains" className="intro-visual" role="img" style={{ backgroundImage: `url(${heroPhoto})` }}>
+            <span className="intro-visual-label"><ChefHat size={15} /> FROM THE RECIPE NOTEBOOK</span>
           </div>
         </section>
 
-        <section className="collection" aria-label="Recipe collection">
+        <section className="collection" aria-label="Recipe collection" id="collection">
           <div className="collection-heading">
             <div>
               <p className="eyebrow">SAVED FOR LATER</p>
