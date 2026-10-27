@@ -43,10 +43,17 @@ function toPayload(form) {
 }
 
 async function request(path, options = {}) {
+  if (!apiBaseUrl && window.location.hostname.endsWith('github.io')) {
+    throw new Error('Recipe storage is not connected yet. Deploy the Express API and set VITE_API_URL in GitHub Actions.');
+  }
   const response = await fetch(`${apiBaseUrl}${path}`, {
     ...options,
     headers: { 'Content-Type': 'application/json', ...options.headers },
   });
+  const contentType = response.headers.get('content-type') || '';
+  if (!contentType.includes('application/json')) {
+    throw new Error('The recipe API returned a non-JSON response. Check that the Express API is deployed and VITE_API_URL points to it.');
+  }
   const data = await response.json();
   if (!response.ok) throw new Error(data.message || 'The request could not be completed.');
   return data;
