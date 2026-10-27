@@ -21,6 +21,7 @@ const categoryPhotos = {
 };
 const heroPhoto = 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=1400&q=90';
 const apiBaseUrl = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
+const useBrowserStorage = !apiBaseUrl && window.location.hostname.endsWith('github.io');
 
 function toForm(recipe) {
   return {
@@ -42,10 +43,55 @@ function toPayload(form) {
   };
 }
 
-async function request(path, options = {}) {
-  if (!apiBaseUrl && window.location.hostname.endsWith('github.io')) {
-    throw new Error('Recipe storage is not connected yet. Deploy the Express API and set VITE_API_URL in GitHub Actions.');
+function readBrowserRecipes() {
+  try {
+    const saved = JSON.parse(window.localStorage.getItem('recipe-book-recipes') || '[]');
+    return Array.isArray(saved) ? saved : [];
+  } catch {
+    return [];
   }
+}
+
+function localStorageRequest(path, options) {
+  const method = options.method || 'GET';
+  const byId = path.match(/^\/api\/recipes\/([^/]+)$/);
+  const recipes = readBrowserRecipes();
+  const body = options.body ? JSON.parse(options.body) : null;
+
+  if (path === '/api/recipes' && method === 'GET') {
+    return recipes.sort((first, second) => second.createdAt.localeCompare(first.createdAt));
+  }
+
+  if (path === '/api/recipes' && method === 'POST') {
+    const now = new Date().toISOString();
+    const recipe = { ...body, _id: crypto.randomUUID(), createdAt: now, updatedAt: now };
+    window.localStorage.setItem('recipe-book-recipes', JSON.stringify([recipe, ...recipes]));
+    return recipe;
+  }
+
+  if (!byId) throw new Error('Recipe not found.');
+  const recipeIndex = recipes.findIndex((recipe) => recipe._id === byId[1]);
+  if (recipeIndex < 0) throw new Error('Recipe not found.');
+  const recipe = recipes[recipeIndex];
+
+  if (method === 'GET') return recipe;
+  if (method === 'PUT') {
+    const updated = { ...recipe, ...body, updatedAt: new Date().toISOString() };
+    recipes[recipeIndex] = updated;
+    window.localStorage.setItem('recipe-book-recipes', JSON.stringify(recipes));
+    return updated;
+  }
+  if (method === 'DELETE') {
+    recipes.splice(recipeIndex, 1);
+    window.localStorage.setItem('recipe-book-recipes', JSON.stringify(recipes));
+    return { message: 'Recipe deleted.' };
+  }
+
+  throw new Error('Unsupported recipe operation.');
+}
+
+async function request(path, options = {}) {
+  if (useBrowserStorage) return localStorageRequest(path, options);
   const response = await fetch(`${apiBaseUrl}${path}`, {
     ...options,
     headers: { 'Content-Type': 'application/json', ...options.headers },
@@ -252,7 +298,7 @@ export default function App() {
           <span className="brand-mark"><ChefHat size={20} strokeWidth={2.2} /></span>
           <span>the recipe <strong>book</strong></span>
         </a>
-        <div className="topbar-note"><span className="status-dot" /> YOUR PERSONAL FOOD COLLECTION</div>
+        <div className="topbar-note"><span className="status-dot" /> {useBrowserStorage ? 'SAVED IN THIS BROWSER' : 'YOUR PERSONAL FOOD COLLECTION'}</div>
         <button className="button button-primary header-add" onClick={() => setModal({ type: 'new' })} type="button"><Plus size={17} /> Add recipe</button>
       </header>
 

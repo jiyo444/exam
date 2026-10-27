@@ -1,6 +1,6 @@
 # Recipe Book
 
-A responsive MERN recipe manager. Recipes are persisted in MongoDB through the Express API.
+A responsive recipe manager. It uses MongoDB through the Express API when configured, and browser-local storage when hosted on GitHub Pages without an API URL.
 
 ## Requirements
 
@@ -17,13 +17,13 @@ The API runs on port 5000 and Vite forwards `/api` requests to it. `npm run buil
 
 ## Deploy the frontend on GitHub Pages
 
-GitHub Pages hosts the React frontend; it does not run the Express API. Deploy the API first using the Render instructions below.
+GitHub Pages hosts the React frontend; it does not run the Express API. The Pages site works without a backend by storing recipes in the current browser's local storage. Recipes saved this way do not sync across browsers or devices.
 
 1. In GitHub, open **Settings** → **Pages** and select **GitHub Actions** as the deployment source.
-2. Open **Settings** → **Secrets and variables** → **Actions** → **Variables**, then create `VITE_API_URL` with the public URL of your Render API (for example, `https://recipe-book.onrender.com`). Do not include a trailing slash.
-3. Push to `main` or run the **Deploy to GitHub Pages** workflow. The site will be published at `https://jiyo444.github.io/exam/`.
+2. Push to `main` or run the **Deploy to GitHub Pages** workflow. The site will be published at `https://jiyo444.github.io/exam/`.
+3. To use MongoDB instead of browser-local storage, deploy the optional API below and create the `VITE_API_URL` Actions variable with its public URL. Do not include a trailing slash.
 
-## Deploy the API on Render
+## Optional MongoDB API on Render
 
 1. In Render, choose **New +** → **Blueprint**, then connect this repository. Render reads `render.yaml` and builds the React app and Express API as one web service.
 2. When prompted, set `MONGODB_URI` to your MongoDB Atlas connection string in Render's environment settings. Do not commit `.env` or paste database credentials into source files.
